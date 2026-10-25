@@ -276,30 +276,10 @@ mod embedded {
 
     std::arch::global_asm!(include_str!(concat!(env!("OUT_DIR"), "/modules.s")));
 
-    unsafe extern "C" {
-        static nx_mod_main_x: u8;
-        static nx_mod_main_d: u8;
-        static nx_mod_main_t: u8;
-        static nx_mod_main_len: u64;
-        static nx_mod_subsdk0_x: u8;
-        static nx_mod_subsdk0_d: u8;
-        static nx_mod_subsdk0_t: u8;
-        static nx_mod_subsdk0_len: u64;
-        static nx_mod_sdk_x: u8;
-        static nx_mod_sdk_d: u8;
-        static nx_mod_sdk_t: u8;
-        static nx_mod_sdk_len: u64;
-    }
+    include!(concat!(env!("OUT_DIR"), "/modules.rs"));
 
     pub fn image(name: &str, text: u64, tramp: u64) -> Result<Option<(u64, &'static [u8])>> {
-        let (x, d, t, len) = unsafe {
-            match name {
-                "main" => (&raw const nx_mod_main_x, &raw const nx_mod_main_d, &raw const nx_mod_main_t, nx_mod_main_len),
-                "subsdk0" => (&raw const nx_mod_subsdk0_x, &raw const nx_mod_subsdk0_d, &raw const nx_mod_subsdk0_t, nx_mod_subsdk0_len),
-                "sdk" => (&raw const nx_mod_sdk_x, &raw const nx_mod_sdk_d, &raw const nx_mod_sdk_t, nx_mod_sdk_len),
-                _ => return Ok(None),
-            }
-        };
+        let Some((x, d, t, len)) = lookup(name) else { return Ok(None) };
         let base = x as u64;
         ensure!(d as u64 == base + align_up(text, PAGE) && t as u64 == base + tramp, "{name}: linked segments are not contiguous (rebuild with matching layouts)");
         ensure!(base + align_up(len, PAGE) < crate::mem::ADDRESS_SPACE_END, "{name}: linked at {base:#x}, above the guest address space");

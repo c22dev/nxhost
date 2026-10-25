@@ -182,10 +182,10 @@ fn connect(scene: &UIWindowScene, mtm: MainThreadMarker) {
     UI.with(|ui| *ui.borrow_mut() = Some(Ui { window, label }));
 
     unsafe extern "C" {
-        fn mush8_show_launcher(view_controller: *mut std::ffi::c_void, play: extern "C" fn(), controller: extern "C" fn());
+        fn nx_show_launcher(view_controller: *mut std::ffi::c_void, play: extern "C" fn(), controller: extern "C" fn());
     }
     let vc = Retained::as_ptr(&vc) as usize;
-    dispatch2::DispatchQueue::main().exec_async(move || unsafe { mush8_show_launcher(vc as *mut _, play, controller) });
+    dispatch2::DispatchQueue::main().exec_async(move || unsafe { nx_show_launcher(vc as *mut _, play, controller) });
 }
 
 extern "C" fn controller() {
@@ -220,7 +220,7 @@ extern "C" fn play() {
                 Ok(()) => set_status(""),
                 Err(e) => {
                     eprintln!("[host] {e:#}");
-                    set_status(&format!("Mush8 could not start:\n\n{e:#}"));
+                    set_status(&format!("{} could not start:\n\n{e:#}", APP.get().copied().unwrap_or("The game")));
                 }
             })
             .unwrap();
@@ -253,7 +253,10 @@ fn set_status(text: &str) {
     });
 }
 
-pub fn run_app(boot: impl FnOnce() -> anyhow::Result<()> + Send + 'static) -> ! {
+static APP: std::sync::OnceLock<&'static str> = std::sync::OnceLock::new();
+
+pub fn run_app(name: &'static str, boot: impl FnOnce() -> anyhow::Result<()> + Send + 'static) -> ! {
+    let _ = APP.set(name);
     let mtm = MainThreadMarker::new().expect("run_app must be called on the main thread");
     *BOOT.lock().unwrap() = Some(Box::new(boot));
     let _ = (SceneDelegate::class(), ViewController::class(), MetalView::class());

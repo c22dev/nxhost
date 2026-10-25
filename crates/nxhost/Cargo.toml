@@ -2,6 +2,7 @@
 name = "nxhost"
 version = "0.1.0"
 edition = "2024"
+links = "nxhost"
 
 [dependencies]
 anyhow = "1.0.104"
