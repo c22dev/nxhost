@@ -1,7 +1,7 @@
 # nxhost
 The Switch porting toolkit foundation used to run Switch games natively on Apple Silicon Macs and iPhones
 
-Used by [Mush8](https://github.com/c22dev/mush8) (Mario Kart 8 Deluxe) and Velocity (Sonic Colors: Ultimate)
+Used by [Mush8](https://github.com/c22dev/mush8) (Mario Kart 8 Deluxe) and [Velocity](https://github.com/c22dev/velocity) (Sonic Colors: Ultimate)
 
 ## How does this work ?
 the Switch and Apple Silicon both run arm64, so a game's code can almost run as is. a few instructions can't run outside a Switch (x18 register, system calls, system registers), so `nxpatch` rewrites them ahead of time. then `nxhost` pretends to be the Switch's OS (Horizon) for the game, emulating its kernel, its services (files, saves, controllers, audio, network...) and NVN, its graphics API, which gets translated into Metal
@@ -25,7 +25,7 @@ nxpatch rewrite --out work/game/patched work/game/exefs/main work/game/exefs/sub
 2. a small binary that calls `nxhost::start(nxhost::Config { ... })` with the dump paths and the modules to load, then `nxhost::gfx::run_app(...)`
 3. fixing everything your game does that the previous ones didn't (that's the fun part)
 
-Velocity is the smallest example of that, around 80 lines
+[Velocity](https://github.com/c22dev/velocity/blob/main/crates/velocity/src/main.rs) is the smallest example of that, around 80 lines
 
 ## Requirements
 - Apple Silicon Mac, macOS 14 or later
