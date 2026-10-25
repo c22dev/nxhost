@@ -27,6 +27,8 @@ nxpatch rewrite --out work/game/patched work/game/exefs/main work/game/exefs/sub
 
 [Velocity](https://github.com/c22dev/velocity/blob/main/crates/velocity/src/main.rs) is the smallest example of that, around 80 lines
 
+For iOS there's no JIT, so the patched code gets baked into the app at build time : build your game's crate for `aarch64-apple-ios` with `NX_MODULES_DIR` (the patched modules), `NX_MODULES` (their names, in load order) and `NX_LAUNCHER` (your game's `Launcher.swift`) set, and add a `build.rs` that passes `DEP_NXHOST_LINK_ARGS` on to the linker. Velocity's `make-ios.sh` does all of that
+
 ## Requirements
 - Apple Silicon Mac, macOS 14 or later
 - Rust toolchain
