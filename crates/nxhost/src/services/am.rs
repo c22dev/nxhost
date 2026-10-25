@@ -32,9 +32,12 @@ static PROXY: &[(u32, Act)] = &[
     (1000, Act::Obj(|| Arc::new(Table { name: "am::IDebugFunctions", cmds: &[] }))),
 ];
 
+const SEPARABLE_LAYERS: [u8; 16] = [1, 0, 0, 0, 0, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0];
+
 static SELF_CONTROLLER: &[(u32, Act)] = &[
     (9, Act::Event(true)),
     (40, Act::U64(1)),
+    (44, Act::Data(&SEPARABLE_LAYERS)),
     (69, Act::U32(0)),
     (90, Act::U64(0)),
     (91, Act::Event(false)),
